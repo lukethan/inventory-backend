@@ -4,6 +4,7 @@
 from flask import Flask, jsonify, request
 import json
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Api, Resource
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -29,8 +30,13 @@ class Inventory(db.Model):
     image = db.Column(db.String(250))
     amount = db.Column(db.Integer, nullable=False)
 
+"""
+Example for how to add a row to database
+products = Inventory(item="Coors", image="", amount="10")
+db.session.add(products)
+db.session.commit()
+"""
 
-products = []
 
 
 
