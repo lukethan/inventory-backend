@@ -5,6 +5,8 @@ from flask import Flask, jsonify, request
 import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse
+from sqlalchemy.exc import IntegrityError
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -72,26 +74,38 @@ class Inventory_API(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('item', type=str, required=True, help='Item name is required')
         parser.add_argument('amount', type=int, required=True, help='Amount is required')
+        parser.add_argument('image', type=str, required=False, default="")
         args = parser.parse_args()
 
-        item_id = len(inventory) + 1  # Generate a new ID (simple approach, can be improved)
-        item_name = args['item']
+        item = args['item']
         amount = args['amount']
+        image = args['image']
 
-        # Add the new item to the inventory
-        inventory[item_id] = {
-            'item': item_name,
-            'amount': amount
-        }
+        product = Inventory(
+            item = item,
+            image = image,
+            amount = amount
+        )
 
-        return jsonify({
-            'message': f"New inventory item added with ID: {item_id}",
-            'item': {
-                'id': item_id,
-                'item': item_name,
-                'amount': amount
-            }
-        })
+        # Add the new item to the database
+        try:
+            db.session.add(product)
+            db.session.commit()
+            id = product.id
+            return jsonify({
+                'message': f"New inventory item added with ID: {id}",
+                'item': {
+                    'id': id,
+                    'item': item,
+                    'image': image,
+                    'amount': amount
+                }
+            })
+        except IntegrityError:
+            return jsonify({
+                'message' : 'Item already exists or other error'
+                })
+
 
 
 api.add_resource(Inventory_API, '/')
