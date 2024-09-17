@@ -33,6 +33,15 @@ class Inventory(db.Model):
     def __repr__(self):
         return f'<Inventory(id={self.id}, item={self.item}, amount={self.amount})>'
 
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'item': self.item,
+            'image': self.image,
+            'amount': self.amount
+        }
+
 """
 Example for how to add a row to database
 products = Inventory(item="Coors", image="", amount="10")
@@ -45,20 +54,19 @@ inventory = {
 }
 
 
-product1 = Inventory(item="Coors", image="", amount="8")
+# product1 = Inventory(item="Coors", image="", amount="8")
 
-try:
-    db.session.add(product1)
-    db.session.commit()
-except:
-    pass
+# try:
+#     db.session.add(product1)
+#     db.session.commit()
+# except:
+#     pass
 
 
 class Inventory_API(Resource):
     def get(self):
-        products = db.session.query(Inventory).all()
-        print(products)
-        return jsonify(inventory)
+        products = Inventory.query.all()
+        return jsonify([product.to_dict() for product in products])
     def post(self):
         # Initialize a parser to handle incoming data
         parser = reqparse.RequestParser()
