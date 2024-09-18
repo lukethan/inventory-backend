@@ -87,12 +87,11 @@ class Inventory_API(Resource):
             amount = amount
         )
 
-        # Add the new item to the database
         try:
             db.session.add(product)
             db.session.commit()
             id = product.id
-            return jsonify({
+            return ({
                 'message': f"New inventory item added with ID: {id}",
                 'item': {
                     'id': id,
@@ -102,10 +101,10 @@ class Inventory_API(Resource):
                 }
             })
         except IntegrityError:
-            return jsonify({
-                'message' : 'Item already exists or other error'
-                })
-
+            db.session.rollback()
+            return ({
+                'message' : 'Item already exists or other error',
+                }), 400
 
 
 api.add_resource(Inventory_API, '/')
