@@ -111,8 +111,8 @@ class Inventory_API(Resource):
     def put(self):
         parser = reqparse.RequestParser()
         parser.add_argument('item', type=str, required=True, help='Item name is required')
-        parser.add_argument('amount', type=int, required=False, help='Amount is required')
-        parser.add_argument('image', type=str, required=False, default="")
+        parser.add_argument('amount', type=int, required=False, default = None)
+        parser.add_argument('image', type=str, required=False, default= None)
         args = parser.parse_args()
 
         item = args['item']
@@ -123,19 +123,39 @@ class Inventory_API(Resource):
 
         if amount is not None:
             updated['amount'] = amount
-        if image:
+        if image is not None:
             updated['image'] = image
 
-        flag = Inventory.query.filter_by(item=item).update(updated)
+        if updated:
+            flag = Inventory.query.filter_by(item=item).update(updated)
+            if flag == 1:
+                db.session.commit()
+                return ({
+                    'message' : f'{item} updated!'
+                    }), 200
+        else:
+            return ({
+                'message' : 'Item doesn\'t exist or other error'
+                }), 404
+
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('item', type=str, required=True, help='Item name is required')
+        args = parser.parse_args()
+
+        item = args['item']
+
+        flag = Inventory.query.filter_by(item=item).delete()
         if flag == 1:
             db.session.commit()
             return ({
-                'message' : f'{item} updated!'
+                'message' : f'{item} deleted!'
                 }), 200
         else:
             return ({
                 'message' : 'Item doesn\'t exist or other error'
                 }), 404
+
 
 api.add_resource(Inventory_API, '/')
 
