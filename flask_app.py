@@ -49,15 +49,18 @@ Example for how to add a row to database
 products = Inventory(item="Coors", image="", amount="10")
 db.session.add(products)
 db.session.commit()
+
+inventory = {1: {'item': 'coors', 'amount': 10}}
+product1 = Inventory(item="Coors", image="", amount="8")
+try:
+    db.session.add(product1)
+    db.session.commit()
+except:
+    pass
 """
 
-inventory = {
-    1: {'item': 'coors', 'amount': 10}
-}
-
-
+# inventory = {1: {'item': 'coors', 'amount': 10}}
 # product1 = Inventory(item="Coors", image="", amount="8")
-
 # try:
 #     db.session.add(product1)
 #     db.session.commit()
@@ -67,7 +70,7 @@ inventory = {
 
 class Inventory_API(Resource):
     def get(self):
-        products = Inventory.query.all()
+        products = Inventory.query.order_by(Inventory.amount).all()
         return jsonify([product.to_dict() for product in products])
     def post(self):
         # Initialize a parser to handle incoming data
@@ -86,7 +89,6 @@ class Inventory_API(Resource):
             image = image,
             amount = amount
         )
-
         try:
             db.session.add(product)
             db.session.commit()
@@ -106,12 +108,36 @@ class Inventory_API(Resource):
                 'message' : 'Item already exists or other error',
                 }), 400
 
+    def put(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('item', type=str, required=True, help='Item name is required')
+        parser.add_argument('amount', type=int, required=False, help='Amount is required')
+        parser.add_argument('image', type=str, required=False, default="")
+        args = parser.parse_args()
+
+        item = args['item']
+        amount = args['amount']
+        image = args['image']
+
+        updated = {}
+
+        if amount is not None:
+            updated['amount'] = amount
+        if image:
+            updated['image'] = image
+
+        flag = Inventory.query.filter_by(item=item).update(updated)
+        if flag == 1:
+            db.session.commit()
+            return ({
+                'message' : f'{item} updated!'
+                }), 200
+        else:
+            return ({
+                'message' : 'Item doesn\'t exist or other error'
+                }), 404
 
 api.add_resource(Inventory_API, '/')
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
