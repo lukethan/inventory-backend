@@ -1,8 +1,9 @@
 
 # A very simple Flask Hello World app for you to get started with...
 
-from flask import Flask, jsonify, request
-import json
+from flask import Flask, jsonify
+# request
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
@@ -10,6 +11,17 @@ from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
+
+"""
+CORS Instructions:
+CORS(app, origins=["https://your-frontend-domain.com"])
+CORS(app, methods=["GET", "POST"], allow_headers=["Content-Type"])
+@app.route('/your-endpoint')
+@cross_origin()  # Apply CORS to this specific route
+def your_endpoint():
+    return {'message': 'Hello, world!'}
+"""
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="kegsouth",
