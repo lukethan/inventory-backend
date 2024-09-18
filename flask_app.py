@@ -1,12 +1,14 @@
 
 # A very simple Flask Hello World app for you to get started with...
 
-from flask import Flask, jsonify
-# request
+from flask import Flask, jsonify, request, send_from_directory, url_for
+import json
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
+import os
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
@@ -168,8 +170,53 @@ class Inventory_API(Resource):
                 'message' : 'Item doesn\'t exist or other error'
                 }), 404
 
+UPLOAD_FOLDER = os.path.join('static', 'public', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+def upload_file():
+    if 'image' not in request.files:
+        return ({'error': 'No file part'}), 400
+    file = request.files['image']
+    if file.filename == '':
+        return ({'error': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        image_url = url_for('uploaded_file', filename=filename, _external=True)
+        item_id = request.form.get('item_id')
+        print(f'Item ID: {item_id}')
+        if item_id is None or item_id == '':
+            return ({'error': 'Invalid item ID'}), 400
+        item = Inventory.query.get(item_id)
+        if item:
+            item.image = image_url  # Store the URL in the database
+            db.session.commit()  # Commit the changes
+            return ({'message': 'File uploaded successfully', 'imageUrl': image_url}), 200
+        else:
+            return ({'error': 'Item not found'}), 404
+
+    return ({'error': 'Invalid file type'}), 400
+
+class Image_API(Resource):
+    def post(self):
+        return upload_file()
+
+
 
 api.add_resource(Inventory_API, '/')
+api.add_resource(Image_API, '/upload')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
