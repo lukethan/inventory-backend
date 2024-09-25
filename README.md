@@ -1,7 +1,7 @@
-# Keg South Inventory Webapp Backend
+# 'Keg South Inventory' Webapp Backend
 "inventory-backend" is a Flask application hosted on PythonAnywhere that provides information to a React frontend via RESTful APIs.
 
-## Relevant Links
+### Relevant Links
   * [Public-Facing Website](https://lukethan.github.io/inventory/)
 
   * [Front-End Repository](https://github.com/lukethan/inventory)
@@ -21,7 +21,110 @@
     the photograph into a static directory in my backend and then generates and stores a URL in the database so that the photo can be
     served to the frontend. Daily snapshots occur via PythonAnywhere's scheduled tasks and involve a SQL dump.
 
-##### To create your own backend on PythonAnywhere:
+## Inventory API Documentation
+### Overview
+This RESTful API provides CRUD (Create, Read, Update, Delete) operations for managing product inventory.
+### Base URL
+`https://kegsouth.pythonanywhere.com`
+#### Endpoints
+- **URL**: `/`
+- **Method**: `GET`
+- **Description**: Retrieves a list of products sorted from lowest amount to highest amount.
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "item": "Coors Light",
+      "amount": 10,
+      "imageUrl": "http://example.com/image.jpg"
+    },
+    ...
+  ]
+- **Method**: `POST`
+- **URL**: `/`
+- **Description**: Adds item and amount to the database.
+- **Body**
+  ```json
+  {
+    "item" : "Yeungling",
+    "amount" : 2
+  }
+- **Response**:
+  ```json
+  {
+    "message": "New inventory item added with ID: 93",
+    "item": {
+        "id": 93,
+        "item": "Yeungling",
+        "image": "",
+        "amount": 2
+  }
+ - **Error**:
+   ```json
+   {
+    "message": "Item already exists or other error"
+   }
+- **Method**: `PUT`
+- **URL**: `/`
+- **Description**: Updates item amount in the database.
+- **Body**
+  ```json
+  {
+    "item" : "Yeungling",
+    "amount" : 5
+  }
+- **Response**:
+  ```json
+  {
+    "message": "Yeungling updated!",
+  }
+ - **Error**:
+   ```json
+   {
+    "message": "Item already exists or other error"
+   }
+- **Method**: `DELETE`
+- **Description**: Deletes item from the database.
+- **URL**: `/<item>`
+- **Request**: `https://kegsouth.pythonanywhere.com/Yeungling`
+- **Response**:
+  ```json
+  {
+    "message": "Yeungling updated!",
+  }
+ - **Error**:
+   ```json
+   {
+    "message": "Item doesn't exist or other error"
+   }
+## Image Upload API Documentation
+### Overview
+This RESTful API stores a user-specified image in the backend then generates and stores a URL in the database to serve the frontend.
+### Base URL
+`https://kegsouth.pythonanywhere.com`
+#### Endpoints
+- **URL**: `/upload`
+- **Method**: `POST`
+- **Description**: Stores image file, generates URL, and stores URL in database to serve '/' GET request
+- **Response**:
+  ```json
+    {
+     "message": "File uploaded successfully",
+     "imageUrl": image_url
+    }
+- **List of Errors**:
+  ```json
+    {
+     "error": "No file part" (when no image is selected by user)
+     "error": "No selected file" (when image filename is empty)
+     "error": "Invalid item ID" (when item associated with image doesn't exist)
+     "error": "Item not found" (when item associated with image has been deleted)
+    }
+   
+
+
+## To create your own backend on PythonAnywhere:
   1. Create an account on PythonAnywhere
   2. Click on the 'database' tab and create a database
   3. Clone the repository using the bash console on PythonAnywhere
