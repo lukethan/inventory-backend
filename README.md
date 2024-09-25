@@ -1,5 +1,5 @@
 # Keg South Inventory Webapp Backend
-inventory-backend is a Flask application hosted on PythonAnywhere that provides information to a React frontend via RESTful APIs.
+"inventory-backend" is a Flask application hosted on PythonAnywhere that provides information to a React frontend via RESTful APIs.
 
 ## Relevant Links
   * [Public-Facing Website](https://lukethan.github.io/inventory/)
