@@ -1,6 +1,4 @@
 
-# A very simple Flask Hello World app for you to get started with...
-
 from flask import Flask, jsonify, request, send_from_directory, url_for
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -137,6 +135,7 @@ class Inventory_API(Resource):
 
         if updated:
             flag = Inventory.query.filter_by(item=item).update(updated)
+            print(flag)
             if flag == 1:
                 db.session.commit()
                 return ({
