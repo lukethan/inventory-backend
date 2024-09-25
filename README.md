@@ -21,12 +21,16 @@ inventory-backend is a Flask application hosted on PythonAnywhere that provides 
     the photograph into a static directory in my backend and then generates and stores a URL in the database so that the photo can be
     served to the frontend. Daily snapshots occur via PythonAnywhere's scheduled tasks and involve a SQL dump.
 
-##### To create your own version of this application follow these steps
+##### To create your own backend on PythonAnywhere:
   1. Create an account on PythonAnywhere
   2. Click on the 'database' tab and create a database
   3. Clone the repository using the bash console on PythonAnywhere
-  4. Create a .env file at the same directory level as the application and add relevant information for the database connection
-  5. Initilize the database for the first time using the class created in the python script. (PythonAnywhere has a good tutorial)
-  6. Test out the database by using Postman website to send requests or by opening a MySQL console and manually adding items
-  7. Visiting your website should display JSON formatted items in your database
-  8. Congrats! You can start designing your frontend or use the repo here as inspiration: [Front-End Repository](https://github.com/lukethan/inventory)
+  4. Due to many dependencies being provided by PythonAnywhere, I would recommend downloading dependencies one at a time\*\*
+  5. Create a .env file at the same directory level as the application and add relevant information for the database connection
+  6. Initilize the database for the first time using the class created in the python script. (PythonAnywhere has a good tutorial)
+  7. Test out the database by using Postman website to send requests or by opening a MySQL console and manually adding items
+  8. Visiting your website should display JSON formatted items in your database
+  9. Congrats! You can start designing your frontend or use the repo here as inspiration: [Front-End Repository](https://github.com/lukethan/inventory)
+
+  \*\*A requirements.txt has been included to mass download dependencies but create a virtual environment before doing this to avoid 
+  duplicate dependencies between the PythonAywhere local directory and your project .local directory.
