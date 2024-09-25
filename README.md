@@ -39,7 +39,7 @@ This RESTful API provides CRUD (Create, Read, Update, Delete) operations for man
       "amount": 10,
       "imageUrl": "http://example.com/image.jpg"
     },
-    ...
+    "..."
   ]
 - **Method**: `POST`
 - **URL**: `/`
@@ -111,16 +111,20 @@ This RESTful API stores a user-specified image in the backend then generates and
   ```json
     {
      "message": "File uploaded successfully",
-     "imageUrl": image_url
+     "imageUrl": "image_url"
     }
 - **List of Errors**:
   ```json
     {
-     "error": "No file part" (when no image is selected by user)
-     "error": "No selected file" (when image filename is empty)
-     "error": "Invalid item ID" (when item associated with image doesn't exist)
-     "error": "Item not found" (when item associated with image has been deleted)
+     "error": "No file part",
+     "error": "No selected file",
+     "error": "Invalid item ID",
+     "error": "Item not found",
     }
+ 1. when no image is selected by user
+ 2. when image filename is empty
+ 3. when item associated with image doesn't exist
+ 4. when item associated with image has been deleted
    
 
 
