@@ -2,18 +2,22 @@
 # A very simple Flask Hello World app for you to get started with...
 
 from flask import Flask, jsonify, request, send_from_directory, url_for
-import json
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
 import os
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
+# load_dotenv()
+
+project_folder = os.path.expanduser('~/mysite')
+load_dotenv(os.path.join(project_folder, '.env'))
 
 """
 CORS Instructions:
@@ -24,13 +28,13 @@ CORS(app, methods=["GET", "POST"], allow_headers=["Content-Type"])
 def your_endpoint():
     return {'message': 'Hello, world!'}
 """
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+hostname = os.getenv('HOSTNAME')
+databasename = os.getenv('DATABASENAME')
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="kegsouth",
-    password="kegsouthpinecrest",
-    hostname="kegsouth.mysql.pythonanywhere-services.com",
-    databasename="kegsouth$default",
-)
+SQLALCHEMY_DATABASE_URI = (f"mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}")
+
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -72,15 +76,6 @@ try:
 except:
     pass
 """
-
-# inventory = {1: {'item': 'coors', 'amount': 10}}
-# product1 = Inventory(item="Coors", image="", amount="8")
-# try:
-#     db.session.add(product1)
-#     db.session.commit()
-# except:
-#     pass
-
 
 class Inventory_API(Resource):
     def get(self):
@@ -152,12 +147,7 @@ class Inventory_API(Resource):
                 'message' : 'Item doesn\'t exist or other error'
                 }), 404
 
-    def delete(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('item', type=str, required=True, help='Item name is required')
-        args = parser.parse_args()
-
-        item = args['item']
+    def delete(self, item):
 
         flag = Inventory.query.filter_by(item=item).delete()
         if flag == 1:
@@ -170,7 +160,7 @@ class Inventory_API(Resource):
                 'message' : 'Item doesn\'t exist or other error'
                 }), 404
 
-UPLOAD_FOLDER = os.path.join('static', 'public', 'uploads')
+UPLOAD_FOLDER = os.path.join('/home/kegsouth/static', 'public', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -182,7 +172,8 @@ def allowed_file(filename):
 
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
 
 def upload_file():
     if 'image' not in request.files:
@@ -200,13 +191,14 @@ def upload_file():
             return ({'error': 'Invalid item ID'}), 400
         item = Inventory.query.get(item_id)
         if item:
-            item.image = image_url  # Store the URL in the database
-            db.session.commit()  # Commit the changes
+            item.image = image_url
+            db.session.commit()
             return ({'message': 'File uploaded successfully', 'imageUrl': image_url}), 200
         else:
             return ({'error': 'Item not found'}), 404
 
     return ({'error': 'Invalid file type'}), 400
+
 
 class Image_API(Resource):
     def post(self):
@@ -214,7 +206,7 @@ class Image_API(Resource):
 
 
 
-api.add_resource(Inventory_API, '/')
+api.add_resource(Inventory_API, '/', '/<string:item>')
 api.add_resource(Image_API, '/upload')
 
 
